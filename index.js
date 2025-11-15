@@ -38,28 +38,37 @@ async function run() {
       }
     });
 
+    // Single Food
+    app.get("/foods/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const food = await foodCollection.findOne({ _id: new ObjectId(id) });
+        if (!food) return res.status(404).json({ message: "Food not found" });
+        res.json(food);
+      } catch (error) {
+        res.status(500).json({ message: "Error fetching food", error });
+      }
+    });
+
+    
+
+    
+
+    
+
     
 
     
 
    
-
     
-
-    
-    
-
-    
-
-    
-
     
 
     
     await client.db("admin").command({ ping: 1 });
-    console.log("🏓 Pinged MongoDB — Connection OK!");
+    console.log("Pinged");
   } catch (error) {
-    console.error("🚫 MongoDB connection error:", error);
+    console.error("MongoDB connection error:", error);
   }
 }
 
