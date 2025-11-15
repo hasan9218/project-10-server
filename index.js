@@ -173,7 +173,34 @@ async function run() {
       }
     });
 
-    
+    // Request Status Accept / Reject
+    app.patch("/food-requests/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const { status } = req.body;
+
+        // Update request status
+        const request = await requestCollection.findOne({ _id: new ObjectId(id) });
+        if (!request) return res.status(404).json({ message: "Request not found" });
+
+        await requestCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { status, updatedAt: new Date() } }
+        );
+
+        //  mark food as donated
+        if (status === "accepted") {
+          await foodCollection.updateOne(
+            { _id: new ObjectId(request.foodId) },
+            { $set: { foodStatus: "Donated", updatedAt: new Date() } }
+          );
+        }
+
+        res.json({ success: true, message: `Request ${status}` });
+      } catch (error) {
+        res.status(500).json({ message: "Error updating request status", error });
+      }
+    });
 
     
     await client.db("admin").command({ ping: 1 });
