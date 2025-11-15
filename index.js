@@ -1,65 +1,75 @@
-const express = require('express')
-const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const app = express()
-const port = 5000
+const express = require("express");
+const cors = require("cors");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
-app.use(cors())
-app.use(express.json())
+const app = express();
+const port = 3000;
 
+// Middleware
+app.use(cors());
+app.use(express.json());
 
+const uri =
+  "mongodb+srv://plate-share-db:03tK1G1650uv5eal@cluster0.vz0nmoq.mongodb.net/food-db?appName=Cluster0";
 
-
-
-const uri = "mongodb+srv://plate-share-db:03tK1G1650uv5eal@cluster0.vz0nmoq.mongodb.net/?appName=Cluster0";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+// MongoDB client setup
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+  serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true },
 });
 
 async function run() {
   try {
     await client.connect();
+    console.log("MongoDB Connected Successfully");
 
-    const db = client.db('food-db')
-    const foodCollection = db.collection('foods')
+    const db = client.db("food-db");
+    const foodCollection = db.collection("foods");
+    const requestCollection = db.collection("requests");
 
+    //  All Food
+    app.get("/foods", async (req, res) => {
+      try {
+        const status = req.query.status;
+        const query = status ? { foodStatus: status } : {};
+        const foods = await foodCollection.find(query).toArray();
+        res.json(foods);
+      } catch (error) {
+        res.status(500).json({ message: "Error fetching foods", error });
+      }
+    });
 
-    // find
-    app.get('/foods', async (req, res) => {
-        const result = await foodCollection.find().toArray()
-        res.send(result)
-    })
+    
 
+    
 
+   
 
+    
 
+    
+    
 
+    
 
+    
 
+    
 
-
+    
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+    console.log("🏓 Pinged MongoDB — Connection OK!");
+  } catch (error) {
+    console.error("🚫 MongoDB connection error:", error);
   }
 }
-run().catch(console.dir);
 
+run().catch(console.error);
 
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
 
-app.get('/', (req, res) => {
-    res.send("Server is running fine")
-})
-
-
+// Start
 app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`)
-})
+  console.log(`Server listening on port ${port}`);
+});
