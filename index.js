@@ -50,9 +50,49 @@ async function run() {
       }
     });
 
-    
+    // Add Food
+    app.post("/foods", async (req, res) => {
+      try {
+        const data = req.body;
+        data.foodStatus = data.foodStatus || "Available";
+        data.createdAt = new Date();
+        const result = await foodCollection.insertOne(data);
+        res.json({ success: true, insertedId: result.insertedId });
+      } catch (error) {
+        res.status(500).json({ success: false, message: "Error adding food", error });
+      }
+    });
 
-    
+    // Update Food
+    app.put("/foods/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const updateData = req.body;
+        const updateDoc = {
+          $set: {
+            foodName: updateData.foodName,
+            foodImage: updateData.foodImage,
+            foodQuantity: updateData.foodQuantity,
+            pickupLocation: updateData.pickupLocation,
+            expireDate: updateData.expireDate,
+            additionalNotes: updateData.additionalNotes,
+            foodStatus: updateData.foodStatus || "Available",
+            updatedAt: new Date(),
+          },
+        };
+        const result = await foodCollection.updateOne(
+          { _id: new ObjectId(id) },
+          updateDoc
+        );
+        if (result.modifiedCount > 0) {
+          res.json({ success: true, message: "Food updated successfully!" });
+        } else {
+          res.json({ success: false, message: "No changes made or food not found!" });
+        }
+      } catch (error) {
+        res.status(500).json({ success: false, message: "Error updating food", error });
+      }
+    });
 
     
 
