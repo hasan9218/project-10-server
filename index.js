@@ -94,11 +94,45 @@ async function run() {
       }
     });
 
-    
+    // Update Food
+    app.patch("/foods/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const updateData = req.body;
+        const updateDoc = { $set: { ...updateData, updatedAt: new Date() } };
+        const result = await foodCollection.updateOne(
+          { _id: new ObjectId(id) },
+          updateDoc
+        );
+        res.json({ success: true, modifiedCount: result.modifiedCount });
+      } catch (error) {
+        res.status(500).json({ success: false, message: "Error updating food", error });
+      }
+    });
 
-    
+    // Delete Food
+    app.delete("/foods/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const result = await foodCollection.deleteOne({ _id: new ObjectId(id) });
+        res.json(result);
+      } catch (error) {
+        res.status(500).json({ message: "Error deleting food", error });
+      }
+    });
 
-    
+    // Submit Food Request
+    app.post("/food-requests", async (req, res) => {
+      try {
+        const request = req.body;
+        request.status = "pending";
+        request.requestedAt = new Date();
+        const result = await requestCollection.insertOne(request);
+        res.json(result);
+      } catch (error) {
+        res.status(500).json({ message: "Error submitting request", error });
+      }
+    });
 
    
     
