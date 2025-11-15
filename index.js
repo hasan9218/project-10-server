@@ -134,8 +134,45 @@ async function run() {
       }
     });
 
-   
-    
+    // All Requests
+    app.get("/food-requests/:foodId", async (req, res) => {
+      try {
+        const foodId = req.params.foodId;
+        const requests = await requestCollection
+          .find({ foodId })
+          .sort({ requestedAt: -1 })
+          .toArray();
+        res.json(requests);
+      } catch (error) {
+        res.status(500).json({ message: "Error fetching food requests", error });
+      }
+    });
+
+    // Requests for MyFoodRequest Page 
+    app.get("/user-requests", async (req, res) => {
+      try {
+        const email = req.query.email;
+        if (!email) return res.status(400).json({ message: "Email query is required" });
+
+        const requests = await requestCollection
+          .find({ userEmail: email })
+          .sort({ requestedAt: -1 })
+          .toArray();
+
+        // Attach food name
+        const requestsWithFoodName = await Promise.all(
+          requests.map(async (reqItem) => {
+            const food = await foodCollection.findOne({ _id: new ObjectId(reqItem.foodId) });
+            return { ...reqItem, foodName: food?.foodName || "Deleted Food" };
+          })
+        );
+
+        res.json(requestsWithFoodName);
+      } catch (error) {
+        res.status(500).json({ message: "Error fetching user requests", error });
+      }
+    });
+
     
 
     
