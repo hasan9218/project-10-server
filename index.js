@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-
+require("dotenv").config();
 const app = express();
 const port = 3000;
 
@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 const uri =
-  "mongodb+srv://plate-share-db:03tK1G1650uv5eal@cluster0.vz0nmoq.mongodb.net/food-db?appName=Cluster0";
+  `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.vz0nmoq.mongodb.net/food-db?appName=Cluster0`;
 
 // MongoDB client setup
 const client = new MongoClient(uri, {
@@ -204,7 +204,7 @@ async function run() {
 
     
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged");
+    console.log("Pinged MongoDB — Connection OK");
   } catch (error) {
     console.error("MongoDB connection error:", error);
   }
